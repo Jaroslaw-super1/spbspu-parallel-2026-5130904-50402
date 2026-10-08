@@ -5,6 +5,7 @@
 #include <exception>
 #include <iomanip>
 #include <limits>
+#include <thread>
 #include "Shape.hpp"
 
 namespace afanasev
@@ -91,8 +92,20 @@ int main(int argc, char ** argv)
 
   for (const av::Shape & s : shapes)
   {
-    
+    s.extendBBox(minX, maxX, minY, maxY);
   }
+
+  const double bboxArea = (maxX - minX) * (maxY - minY);
+
+  const std::size_t nthreads = static_cast< std::size_t >(threads);
+
+  std::vector< long long > unionCounts(nthreads, 0);
+  std::vector< long long > interCounts(nthreads, 0);
+  std::vector< std::thread > workers;
+  workers.reserve(nthreads);
+
+  const long long base = tries / static_cast< long long >(nthreads);
+  const long long rem = tries % static_cast< long long >(nthreads);
 
   return 0;
 }
