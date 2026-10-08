@@ -8,6 +8,7 @@
 #include <thread>
 #include <numeric>
 #include <cstddef>
+#include <random>
 #include "Shape.hpp"
 
 namespace afanasev
@@ -109,9 +110,51 @@ int main(int argc, char ** argv)
   const long long base = tries / static_cast< long long >(nthreads);
   const long long rem = tries % static_cast< long long >(nthreads);
 
+  const unsigned baseSeed = static_cast< unsigned >(seed);
+
   for (std::size_t t = 0; t < nthreads; ++t)
   {
+    const long long cnt = base + (static_cast< long long >(t) < rem ? 1LL : 0LL);
+    const unsigned threadSeed = baseSeed + static_cast< unsigned >(t);
 
+    workers.emplace_back([&, t, cnt, threadSeed]()
+    {
+      std::default_random_engine gen(threadSeed);
+
+      std::uniform_real_distribution< double > distX(minX, maxX);
+      std::uniform_real_distribution< double > distY(minY, maxY);
+
+      long long inUnion = 0;
+      long long inInter = 0;
+
+      for (long long i = 0; i < cnt; ++i)
+      {
+        const double px = distX(gen);
+        const double py = distY(gen);
+
+        bool any = false;
+        bool all = true;
+
+        for (const av::Shape & s : shapes)
+        {
+          const bool inside = s.contains(px, py);
+          any = any || inside;
+          all = all && inside;
+        }
+
+        if (any)
+        {
+          ++inUnion;
+        }
+        if (all)
+        {
+          ++inInter;
+        }
+      }
+
+      unionCounts[t] = inUnion;
+      interCounts[t] = inInter;
+    });
   }
 
   for (std::thread & w : workers)
