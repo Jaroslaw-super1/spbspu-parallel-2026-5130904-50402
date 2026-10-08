@@ -10,12 +10,12 @@ namespace afanasev
     y_ = static_cast< double >(cy);
   }
 
-  void Shape::extendBBox(double & minX, double & maxX, double & minY, double & maxY) const noexcept
+  void Shape::extendBBox(double & min_x, double & max_x, double & min_y, double & max_y) const noexcept
   {
-    minX = std::min(minX, x_ - r_);
-    maxX = std::max(maxX, x_ + r_);
-    minY = std::min(minY, y_ - r_);
-    maxY = std::max(maxY, y_ + r_);
+    min_x = std::min(min_x, x_ - r_);
+    max_x = std::max(max_x, x_ + r_);
+    min_y = std::min(min_y, y_ - r_);
+    max_y = std::max(max_y, y_ + r_);
   }
 
   bool Shape::contains(double px, double py) const noexcept
