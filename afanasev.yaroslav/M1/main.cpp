@@ -125,41 +125,41 @@ int main(int argc, char ** argv)
     const unsigned thread_seed = base_seed + static_cast< unsigned >(t);
 
     workers.emplace_back([&, t, cnt, thread_seed]() {
-      std::default_random_engine gen(thread_seed);
+          std::default_random_engine gen(thread_seed);
 
-      std::uniform_real_distribution< double > dist_x(min_x, max_x);
-      std::uniform_real_distribution< double > dist_y(min_y, max_y);
+          std::uniform_real_distribution< double > dist_x(min_x, max_x);
+          std::uniform_real_distribution< double > dist_y(min_y, max_y);
 
-      long long in_union = 0;
-      long long in_inter = 0;
+          long long in_union = 0;
+          long long in_inter = 0;
 
-      for (long long i = 0; i < cnt; ++i)
-      {
-        const double px = dist_x(gen);
-        const double py = dist_y(gen);
+          for (long long i = 0; i < cnt; ++i)
+          {
+            const double px = dist_x(gen);
+            const double py = dist_y(gen);
 
-        bool any = false;
-        bool all = true;
+            bool any = false;
+            bool all = true;
 
-        for (const av::Shape & s : shapes)
-        {
-          const bool inside = s.contains(px, py);
-          any = any || inside;
-          all = all && inside;
-        }
+            for (const av::Shape & s : shapes)
+            {
+              const bool inside = s.contains(px, py);
+              any = any || inside;
+              all = all && inside;
+            }
 
-        if (any)
-        {
-          ++in_union;
-        }
-        if (all)
-        {
-          ++in_inter;
-        }
-      }
+            if (any)
+            {
+              ++in_union;
+            }
+            if (all)
+            {
+              ++in_inter;
+            }
+          }
 
-      union_counts[t] = in_union;
-      inter_counts[t] = in_inter;
+          union_counts[t] = in_union;
+          inter_counts[t] = in_inter;
     });
   }
 
