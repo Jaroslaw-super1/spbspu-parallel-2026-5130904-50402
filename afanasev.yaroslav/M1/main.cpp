@@ -5,6 +5,7 @@
 #include <exception>
 #include <iomanip>
 #include <limits>
+#include "Shape.hpp"
 
 namespace afanasev
 {
@@ -88,7 +89,10 @@ int main(int argc, char ** argv)
   double minY = std::numeric_limits< double >::infinity();
   double maxY = -std::numeric_limits< double >::infinity();
 
-  // std::cout << argv[0] << argv[1];
+  for (const Shape & s : shapes)
+  {
+
+  }
 
   return 0;
 }
