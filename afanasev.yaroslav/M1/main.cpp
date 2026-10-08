@@ -109,6 +109,12 @@ int main(int argc, char ** argv)
 
   for (std::size_t t = 0; t < nthreads; ++t)
   {
+
+  }
+
+  for (std::thread & w : workers)
+  {
+    w.join();
   }
 
   return 0;
