@@ -1,5 +1,10 @@
 #include <iostream>
 #include <vector>
+#include <cerrno>
+#include <cstdlib>
+#include <exception>
+#include <iomanip>
+#include <limits>
 
 namespace afanasev
 {
@@ -64,7 +69,24 @@ int main(int argc, char ** argv)
       return 1;
     }
   }
+
+  if (!std::cin.eof())
+  {
+    std::cerr << "invalid figure input\n";
+    return 1;
+  }
+
+  if (shapes.empty())
+  {
+    std::cout << std::setprecision(std::numeric_limits< double >::max_digits10);
+    std::cout << 0.0 << ' ' << 0.0 << '\n';
+    return 0;
+  }
   
+  double minX = std::numeric_limits< double >::infinity();
+  double maxX = -std::numeric_limits< double >::infinity();
+  double minY = std::numeric_limits< double >::infinity();
+  double maxY = -std::numeric_limits< double >::infinity();
 
   // std::cout << argv[0] << argv[1];
 
