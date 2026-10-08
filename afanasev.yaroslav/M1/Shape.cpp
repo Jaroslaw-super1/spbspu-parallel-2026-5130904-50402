@@ -1,5 +1,4 @@
 #include "Shape.hpp"
-
 #include <algorithm>
 #include <stdexcept>
 
@@ -20,7 +19,7 @@ namespace afanasev
     maxY = std::max(maxY, y_ + r_);
   }
 
-  bool Shape::contains(double px, double py) const noexcept 
+  bool Shape::contains(double px, double py) const noexcept
   {
     const double dx = px - x_;
     const double dy = py - y_;

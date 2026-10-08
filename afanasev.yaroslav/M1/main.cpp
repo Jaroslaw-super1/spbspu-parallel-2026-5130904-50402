@@ -28,7 +28,6 @@ namespace afanasev
   }
 }
 
-
 int main(int argc, char ** argv)
 {
   namespace av = afanasev;
