@@ -2,6 +2,18 @@
 
 namespace afanasev
 {
+  bool getArgv(const char * s, long long & out)
+  {
+    char * end = nullptr;
+    errno = 0;
+    long long v = std::strtoll(s, &end, 10);
+    if (errno == ERANGE || end == s || *end != '\0')
+    {
+      return false;
+    }
+    out = v;
+    return true;
+}
 }
 
 
