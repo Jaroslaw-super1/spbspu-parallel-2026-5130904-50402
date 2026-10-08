@@ -13,7 +13,7 @@
 
 namespace afanasev
 {
-  bool parse_arg(const char * s, long long & out)
+  bool parseArg(const char * s, long long & out)
   {
     char * end = nullptr;
     errno = 0;
@@ -42,7 +42,7 @@ int main(int argc, char ** argv)
   long long tries = 0;
   long long seed = 0;
 
-  if (!av::parse_arg(argv[1], threads) || !av::parse_arg(argv[2], tries) || (argc == 4 && !av::parse_arg(argv[3], seed)))
+  if (!av::parseArg(argv[1], threads) || !av::parseArg(argv[2], tries) || (argc == 4 && !av::parseArg(argv[3], seed)))
   {
     std::cerr << "invalid command line argument\n";
     return 1;
