@@ -5,6 +5,17 @@
 
 namespace afanasev
 {
+  Shape::Shape(long long r, long long, long long cx, long long cy)
+  {
+    if (r <= 0)
+    {
+      throw std::invalid_argument("radius must be positive");
+    }
+    r_ = static_cast< double >(r);
+    x_ = static_cast< double >(cx);
+    y_ = static_cast< double >(cy);
+  }
+
   void Shape::extendBBox(double & minX, double & maxX, double & minY, double & maxY) const noexcept
   {
     minX = std::min(minX, x_ - r_);

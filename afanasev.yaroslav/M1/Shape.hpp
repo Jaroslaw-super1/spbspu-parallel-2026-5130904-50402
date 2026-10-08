@@ -7,6 +7,8 @@ namespace afanasev
   class Shape
   {
   public:
+    Shape(long long r, long long, long long cx, long long cy);
+
     void extendBBox(double & minX, double & maxX, double & minY, double & maxY) const noexcept;
     bool contains(double px, double py) const noexcept;
 
