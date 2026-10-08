@@ -12,4 +12,11 @@ namespace afanasev
     minY = std::min(minY, y_ - r_);
     maxY = std::max(maxY, y_ + r_);
   }
+
+  bool Shape::contains(double px, double py) const noexcept 
+  {
+    const double dx = px - x_;
+    const double dy = py - y_;
+    return dx * dx + dy * dy <= r_ * r_;
+  }
 }

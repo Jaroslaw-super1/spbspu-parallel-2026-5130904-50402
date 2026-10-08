@@ -8,6 +8,7 @@ namespace afanasev
   {
   public:
     void extendBBox(double & minX, double & maxX, double & minY, double & maxY) const noexcept;
+    bool contains(double px, double py) const noexcept;
 
   private:
     double r_ = 0.0;
