@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <limits>
 #include <thread>
+#include <numeric>
+#include <cstddef>
 #include "Shape.hpp"
 
 namespace afanasev
@@ -116,6 +118,15 @@ int main(int argc, char ** argv)
   {
     w.join();
   }
+
+  const long long totalUnion = std::accumulate(unionCounts.begin(), unionCounts.end(), 0LL);
+  const long long totalInter = std::accumulate(interCounts.begin(), interCounts.end(), 0LL);
+
+  const double unionArea = bboxArea * static_cast< double >(totalUnion) / static_cast< double >(tries);
+  const double interArea = bboxArea * static_cast< double >(totalInter) / static_cast< double >(tries);
+
+  std::cout << std::setprecision(std::numeric_limits< double >::max_digits10);
+  std::cout << unionArea << ' ' << interArea << '\n';
 
   return 0;
 }
