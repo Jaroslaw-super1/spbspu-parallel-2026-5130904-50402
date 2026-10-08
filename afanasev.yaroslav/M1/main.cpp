@@ -124,8 +124,7 @@ int main(int argc, char ** argv)
     const long long cnt = base + (static_cast< long long >(t) < rem ? 1LL : 0LL);
     const unsigned thread_seed = base_seed + static_cast< unsigned >(t);
 
-    workers.emplace_back([&, t, cnt, thread_seed]()
-    {
+    workers.emplace_back([&, t, cnt, thread_seed]() {
       std::default_random_engine gen(thread_seed);
 
       std::uniform_real_distribution< double > dist_x(min_x, max_x);
