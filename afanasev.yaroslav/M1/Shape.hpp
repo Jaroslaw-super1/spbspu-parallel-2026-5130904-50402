@@ -7,6 +7,7 @@ namespace afanasev
   class Shape
   {
   public:
+    void extendBBox(double & minX, double & maxX, double & minY, double & maxY) const noexcept;
 
   private:
     double r_ = 0.0;

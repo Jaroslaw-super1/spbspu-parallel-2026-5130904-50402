@@ -45,7 +45,7 @@ int main(int argc, char ** argv)
     return 1;
   }
 
-  std::vector< Shape > shapes;
+  std::vector< av::Shape > shapes;
 
   long long r = 0;
   long long second = 0;
@@ -89,9 +89,9 @@ int main(int argc, char ** argv)
   double minY = std::numeric_limits< double >::infinity();
   double maxY = -std::numeric_limits< double >::infinity();
 
-  for (const Shape & s : shapes)
+  for (const av::Shape & s : shapes)
   {
-
+    
   }
 
   return 0;
