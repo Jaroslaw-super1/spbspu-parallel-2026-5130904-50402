@@ -48,7 +48,21 @@ int main(int argc, char ** argv)
 
   while (std::cin >> r)
   {
-    
+    if (!(std::cin >> second >> x >> y))
+    {
+      std::cerr << "invalid figure input\n";
+      return 1;
+    }
+
+    try
+    {
+      shapes.emplace_back(r, second, x, y);
+    }
+    catch (const std::exception & e)
+    {
+      std::cerr << e.what() << '\n';
+      return 1;
+    }
   }
   
 
