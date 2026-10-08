@@ -13,13 +13,13 @@
 
 namespace afanasev
 {
-  bool getArgv(const char * s, long long & out)
+  bool parseArg(const char * s, long long & out)
   {
     char * end = nullptr;
     errno = 0;
     long long v = std::strtoll(s, &end, 10);
 
-    if (errno == ERANGE || end == s || *end != '\0' || v <= 0)
+    if (errno == ERANGE || end == s || *end != '\0' || v < 0)
     {
       return false;
     }
@@ -43,9 +43,17 @@ int main(int argc, char ** argv)
   long long tries = 0;
   long long seed = 0;
 
-  if (!av::getArgv(argv[1], threads) || !av::getArgv(argv[2], tries) || (argc == 4 && !av::getArgv(argv[3], seed)))
+  if (!av::parseArg(argv[1], threads) || !av::parseArg(argv[2], tries) || (argc == 4 && !av::parseArg(argv[3], seed)))
   {
     std::cerr << "invalid command line argument\n";
+    return 1;
+  }
+
+  threads = threads ? threads : 1;
+
+  if (tries == 0)
+  {
+    std::cerr << "tries must be positive\n";
     return 1;
   }
 
