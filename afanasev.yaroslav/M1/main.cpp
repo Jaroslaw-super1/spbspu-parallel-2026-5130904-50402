@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 namespace afanasev
 {
@@ -8,7 +9,7 @@ namespace afanasev
     errno = 0;
     long long v = std::strtoll(s, &end, 10);
 
-    if (errno == ERANGE || end == s || *end != '\0' || v < 0)
+    if (errno == ERANGE || end == s || *end != '\0' || v <= 0)
     {
       return false;
     }
@@ -36,6 +37,18 @@ int main(int argc, char ** argv)
   {
     std::cerr << "invalid command line argument\n";
     return 1;
+  }
+
+  std::vector< Shape > shapes;
+
+  long long r = 0;
+  long long second = 0;
+  long long x = 0;
+  long long y = 0;
+
+  while (std::cin >> r)
+  {
+    
   }
   
 
