@@ -13,11 +13,11 @@
 
 namespace afanasev
 {
-  bool parseArg(const char * s, long long & out)
+  bool parse_arg(const char * s, long long & out)
   {
     char * end = nullptr;
     errno = 0;
-    long long v = std::strtoll(s, &end, 10);
+    const long long v = std::strtoll(s, &end, 10);
 
     if (errno == ERANGE || end == s || *end != '\0' || v < 0)
     {
@@ -42,7 +42,7 @@ int main(int argc, char ** argv)
   long long tries = 0;
   long long seed = 0;
 
-  if (!av::parseArg(argv[1], threads) || !av::parseArg(argv[2], tries) || (argc == 4 && !av::parseArg(argv[3], seed)))
+  if (!av::parse_arg(argv[1], threads) || !av::parse_arg(argv[2], tries) || (argc == 4 && !av::parse_arg(argv[3], seed)))
   {
     std::cerr << "invalid command line argument\n";
     return 1;
@@ -95,49 +95,49 @@ int main(int argc, char ** argv)
     return 0;
   }
 
-  double minX = std::numeric_limits< double >::infinity();
-  double maxX = -std::numeric_limits< double >::infinity();
-  double minY = std::numeric_limits< double >::infinity();
-  double maxY = -std::numeric_limits< double >::infinity();
+  double min_x = std::numeric_limits< double >::infinity();
+  double max_x = -std::numeric_limits< double >::infinity();
+  double min_y = std::numeric_limits< double >::infinity();
+  double max_y = -std::numeric_limits< double >::infinity();
 
   for (const av::Shape & s : shapes)
   {
-    s.extendBBox(minX, maxX, minY, maxY);
+    s.extendBBox(min_x, max_x, min_y, max_y);
   }
 
-  const double bboxArea = (maxX - minX) * (maxY - minY);
+  const double bbox_area = (max_x - min_x) * (max_y - min_y);
 
   const std::size_t nthreads = static_cast< std::size_t >(threads);
 
-  std::vector< long long > unionCounts(nthreads, 0);
-  std::vector< long long > interCounts(nthreads, 0);
+  std::vector< long long > union_counts(nthreads, 0);
+  std::vector< long long > inter_counts(nthreads, 0);
   std::vector< std::thread > workers;
   workers.reserve(nthreads);
 
   const long long base = tries / static_cast< long long >(nthreads);
   const long long rem = tries % static_cast< long long >(nthreads);
 
-  const unsigned baseSeed = static_cast< unsigned >(seed);
+  const unsigned base_seed = static_cast< unsigned >(seed);
 
   for (std::size_t t = 0; t < nthreads; ++t)
   {
     const long long cnt = base + (static_cast< long long >(t) < rem ? 1LL : 0LL);
-    const unsigned threadSeed = baseSeed + static_cast< unsigned >(t);
+    const unsigned thread_seed = base_seed + static_cast< unsigned >(t);
 
-    workers.emplace_back([&, t, cnt, threadSeed]()
+    workers.emplace_back([&, t, cnt, thread_seed]()
     {
-      std::default_random_engine gen(threadSeed);
+      std::default_random_engine gen(thread_seed);
 
-      std::uniform_real_distribution< double > distX(minX, maxX);
-      std::uniform_real_distribution< double > distY(minY, maxY);
+      std::uniform_real_distribution< double > dist_x(min_x, max_x);
+      std::uniform_real_distribution< double > dist_y(min_y, max_y);
 
-      long long inUnion = 0;
-      long long inInter = 0;
+      long long in_union = 0;
+      long long in_inter = 0;
 
       for (long long i = 0; i < cnt; ++i)
       {
-        const double px = distX(gen);
-        const double py = distY(gen);
+        const double px = dist_x(gen);
+        const double py = dist_y(gen);
 
         bool any = false;
         bool all = true;
@@ -151,16 +151,16 @@ int main(int argc, char ** argv)
 
         if (any)
         {
-          ++inUnion;
+          ++in_union;
         }
         if (all)
         {
-          ++inInter;
+          ++in_inter;
         }
       }
 
-      unionCounts[t] = inUnion;
-      interCounts[t] = inInter;
+      union_counts[t] = in_union;
+      inter_counts[t] = in_inter;
     });
   }
 
@@ -169,14 +169,14 @@ int main(int argc, char ** argv)
     w.join();
   }
 
-  const long long totalUnion = std::accumulate(unionCounts.begin(), unionCounts.end(), 0LL);
-  const long long totalInter = std::accumulate(interCounts.begin(), interCounts.end(), 0LL);
+  const long long total_union = std::accumulate(union_counts.begin(), union_counts.end(), 0LL);
+  const long long total_inter = std::accumulate(inter_counts.begin(), inter_counts.end(), 0LL);
 
-  const double unionArea = bboxArea * static_cast< double >(totalUnion) / static_cast< double >(tries);
-  const double interArea = bboxArea * static_cast< double >(totalInter) / static_cast< double >(tries);
+  const double union_area = bbox_area * static_cast< double >(total_union) / static_cast< double >(tries);
+  const double inter_area = bbox_area * static_cast< double >(total_inter) / static_cast< double >(tries);
 
   std::cout << std::setprecision(std::numeric_limits< double >::max_digits10);
-  std::cout << unionArea << ' ' << interArea << '\n';
+  std::cout << union_area << ' ' << inter_area << '\n';
 
   return 0;
 }
