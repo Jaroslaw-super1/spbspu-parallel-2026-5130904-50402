@@ -94,7 +94,7 @@ int main(int argc, char ** argv)
     std::cout << 0.0 << ' ' << 0.0 << '\n';
     return 0;
   }
-  
+
   double minX = std::numeric_limits< double >::infinity();
   double maxX = -std::numeric_limits< double >::infinity();
   double minY = std::numeric_limits< double >::infinity();
