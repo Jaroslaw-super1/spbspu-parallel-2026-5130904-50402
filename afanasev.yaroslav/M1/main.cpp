@@ -107,5 +107,9 @@ int main(int argc, char ** argv)
   const long long base = tries / static_cast< long long >(nthreads);
   const long long rem = tries % static_cast< long long >(nthreads);
 
+  for (std::size_t t = 0; t < nthreads; ++t)
+  {
+  }
+
   return 0;
 }
