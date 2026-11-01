@@ -22,16 +22,16 @@ namespace afanasev
     }
   }
 
-
-  bool cmdCircle(std::istream & in, std::ostream & out, Data &)
+  bool cmdCircle(std::istream & in, std::ostream &, Data & data)
   {
     std::string name;
     long long r, x, y;
-    if (!(in >> name >> r >> x >> y))
+    if (!(in >> name >> r >> x >> y) || r <= 0 || !isValidName(name) || data.shapes.count(name) > 0)
     {
       return false;
     }
-    out << "circle " << name << " " << r << " " << x << " " << y << "\n";
+
+    data.shapes.emplace(name, Shape::makeCircle(r, x, y));
     return true;
   }
 
@@ -65,14 +65,21 @@ namespace afanasev
     return true;
   }
 
-  bool cmdShow(std::istream & in, std::ostream & out, Data &)
+  bool cmdShow(std::istream & in, std::ostream & out, Data & data)
   {
     std::string name;
     if (!(in >> name))
     {
       return false;
     }
-    out << "show " << name << "\n";
+
+    auto it = data.shapes.find(name);
+    if (it == data.shapes.end())
+    {
+      return false;
+    }
+
+    printShape(out, it->second);
     return true;
   }
 
@@ -87,14 +94,22 @@ namespace afanasev
     return true;
   }
 
-  bool cmdFrame(std::istream & in, std::ostream & out, Data &)
+  bool cmdFrame(std::istream & in, std::ostream & out, Data & data)
   {
     std::string name;
     if (!(in >> name))
     {
       return false;
     }
-    out << "frame " << name << "\n";
+
+    auto it = data.shapes.find(name);
+    if (it == data.shapes.end())
+    {
+      return false;
+    }
+
+    const bbox_t b = it->second.bbox();
+    out << "(" << b.min_x << " " << b.min_y << ") (" << b.max_x << " " << b.max_y << ")\n";
     return true;
   }
 
