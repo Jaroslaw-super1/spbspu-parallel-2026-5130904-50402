@@ -66,51 +66,82 @@ namespace afanasev
           {
             nthreads = MAX_THREADS;
           }
+          if (nthreads == 0)
+          {
+            nthreads = 1;
+          }
 
-          std::vector< long long > counts(nthreads, 0);
-          std::vector< std::thread > workers;
-          workers.reserve(nthreads);
+          const double gen_min = static_cast< double >(std::default_random_engine::min());
+          const double gen_range = static_cast< double >(std::default_random_engine::max()) - gen_min;
+          const double scale_x = (max_x - min_x) / gen_range;
+          const double scale_y = (max_y - min_y) / gen_range;
 
           const long long total_tries = static_cast< long long >(hdr.tries);
           const long long base = total_tries / static_cast< long long >(nthreads);
           const long long rem = total_tries % static_cast< long long >(nthreads);
           const unsigned base_seed = seed + static_cast< unsigned >(hdr.calc_id);
 
-          for (std::size_t t = 0; t < nthreads; ++t)
+          std::vector< long long > counts(nthreads, 0);
+
+          if (nthreads == 1)
           {
-            const long long cnt = base + (static_cast< long long >(t) < rem ? 1LL : 0LL);
-            const unsigned thread_seed = base_seed + static_cast< unsigned >(t);
-
-            workers.emplace_back(
-                [&, t, cnt, thread_seed]()
+            std::default_random_engine gen(base_seed);
+            long long in_union = 0;
+            for (long long i = 0; i < total_tries; ++i)
+            {
+              const double px = min_x + (static_cast< double >(gen()) - gen_min) * scale_x;
+              const double py = min_y + (static_cast< double >(gen()) - gen_min) * scale_y;
+              for (const auto &s : shapes)
+              {
+                const double dx = px - s.cx;
+                const double dy = py - s.cy;
+                if (dx * dx + dy * dy <= s.radius * s.radius)
                 {
-                  std::default_random_engine gen(thread_seed);
-                  std::uniform_real_distribution< double > dist_x(min_x, max_x);
-                  std::uniform_real_distribution< double > dist_y(min_y, max_y);
+                  ++in_union;
+                  break;
+                }
+              }
+            }
+            counts[0] = in_union;
+          }
+          else
+          {
+            std::vector< std::thread > workers;
+            workers.reserve(nthreads);
 
-                  long long in_union = 0;
-                  for (long long i = 0; i < cnt; ++i)
+            for (std::size_t t = 0; t < nthreads; ++t)
+            {
+              const long long cnt = base + (static_cast< long long >(t) < rem ? 1LL : 0LL);
+              const unsigned thread_seed = base_seed + static_cast< unsigned >(t);
+
+              workers.emplace_back(
+                  [&, t, cnt, thread_seed]()
                   {
-                    const double px = dist_x(gen);
-                    const double py = dist_y(gen);
-                    for (const auto &s : shapes)
+                    std::default_random_engine gen(thread_seed);
+                    long long in_union = 0;
+                    for (long long i = 0; i < cnt; ++i)
                     {
-                      const double dx = px - s.cx;
-                      const double dy = py - s.cy;
-                      if (dx * dx + dy * dy <= s.radius * s.radius)
+                      const double px = min_x + (static_cast< double >(gen()) - gen_min) * scale_x;
+                      const double py = min_y + (static_cast< double >(gen()) - gen_min) * scale_y;
+                      for (const auto &s : shapes)
                       {
-                        ++in_union;
-                        break;
+                        const double dx = px - s.cx;
+                        const double dy = py - s.cy;
+                        if (dx * dx + dy * dy <= s.radius * s.radius)
+                        {
+                          ++in_union;
+                          break;
+                        }
                       }
                     }
-                  }
-                  counts[t] = in_union;
-                });
-          }
+                    counts[t] = in_union;
+                  });
+            }
 
-          for (std::thread &w : workers)
-          {
-            w.join();
+            for (std::thread &w : workers)
+            {
+              w.join();
+            }
           }
 
           const long long total_in = std::accumulate(counts.begin(), counts.end(), 0LL);

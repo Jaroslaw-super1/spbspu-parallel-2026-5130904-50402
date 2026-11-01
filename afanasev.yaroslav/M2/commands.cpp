@@ -34,8 +34,9 @@ namespace afanasev
       out << sh.radius() << " " << sh.center() << "\n";
     }
 
-    void pumpAll(Data &data)
+    bool pumpAll(Data &data)
     {
+      bool all_ok = true;
       for (auto &thr : data.workers)
       {
         const Worker &w = thr.second;
@@ -44,6 +45,7 @@ namespace afanasev
           ResultSlot r{};
           if (!recvAll(w.result_rd, &r, sizeof r))
           {
+            all_ok = false;
             break;
           }
           auto it = data.calc_name_by_id.find(r.calc_id);
@@ -57,6 +59,7 @@ namespace afanasev
           c.area = r.area;
         }
       }
+      return all_ok;
     }
   }
 
@@ -349,8 +352,7 @@ namespace afanasev
       return false;
     }
 
-    pumpAll(data);
-
+    (void)pumpAll(data);
     const Calc &c = it->second;
 
     if (!c.done)
@@ -384,12 +386,15 @@ namespace afanasev
       return false;
     }
 
-    pumpAll(data);
-    const Calc &c = it->second;
+    (void)pumpAll(data);
+    Calc &c = it->second;
     while (!c.done)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      pumpAll(data);
+      if (!pumpAll(data))
+      {
+        break;
+      }
     }
 
     if (!c.done)
