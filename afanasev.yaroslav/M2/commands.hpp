@@ -2,11 +2,15 @@
 #define COMMANDS_HPP
 
 #include <iosfwd>
+#include <map>
+#include <string>
+#include "shape.hpp"
 
 namespace afanasev
 {
   struct Data
   {
+    std::map< std::string, Shape > shapes;
   };
 
   bool cmdCircle(std::istream &, std::ostream &, Data &);

@@ -7,6 +7,22 @@
 
 namespace afanasev
 {
+  namespace
+  {
+    bool isValidName(const std::string & s)
+    {
+      if (s.empty()) return false;
+      const char c = s.front();
+      return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+
+    void printShape(std::ostream & out, const Shape & sh)
+    {
+      out << sh.radius() << " " << sh.center() << "\n";
+    }
+  }
+
+
   bool cmdCircle(std::istream & in, std::ostream & out, Data &)
   {
     std::string name;
