@@ -28,5 +28,28 @@ namespace
 
 int main()
 {
-  std::cout << "F" << '\n';
+  afanasev::Data data;
+  std::string cmd;
+
+  while (std::cin >> cmd)
+  {
+    const auto & table = commandTable();
+    auto it = table.find(cmd);
+
+    if (it == table.end())
+    {
+      std::cout << "<UNKNOWN COMMAND>\n";
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      continue;
+    }
+
+    if (!it->second(std::cin, std::cout, data))
+    {
+      std::cout << "<INVALID COMMAND>\n";
+      std::cin.clear();
+    }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  }
+  return 0;
 }
