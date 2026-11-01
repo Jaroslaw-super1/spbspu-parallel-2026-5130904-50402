@@ -122,4 +122,15 @@ namespace afanasev
         << " " << threads << " " << tries << "\n";
     return true;
   }
+
+  bool cmdStatus(std::istream & in, std::ostream & out, Data &)
+  {
+    std::string name;
+    if (!(in >> name))
+    {
+      return false;
+    }
+    out << "status " << name << "\n";
+    return true;
+  }
 }
