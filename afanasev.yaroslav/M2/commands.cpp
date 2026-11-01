@@ -81,4 +81,15 @@ namespace afanasev
     out << "frame " << name << "\n";
     return true;
   }
+
+  bool cmdFrameSet(std::istream & in, std::ostream & out, Data &)
+  {
+    std::string name;
+    if (!(in >> name))
+    {
+      return false;
+    }
+    out << "frameset " << name << "\n";
+    return true;
+  }
 }
