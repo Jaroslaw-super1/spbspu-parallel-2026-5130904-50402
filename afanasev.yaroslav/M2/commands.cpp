@@ -4,6 +4,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 namespace afanasev
 {
@@ -79,14 +80,29 @@ namespace afanasev
     return true;
   }
 
-  bool cmdShowSet(std::istream & in, std::ostream & out, Data &)
+  bool cmdShowSet(std::istream & in, std::ostream & out, Data & data)
   {
     std::string name;
     if (!(in >> name))
     {
       return false;
     }
-    out << "showset " << name << "\n";
+
+    auto it = data.sets.find(name);
+    if (it == data.sets.end())
+    {
+      return false;
+    }
+
+    for (const auto & shapeName : it->second)
+    {
+      auto sit = data.shapes.find(shapeName);
+      if (sit == data.shapes.end())
+      {
+        return false;
+      }
+      printShape(out, sit->second);
+    }
     return true;
   }
 
