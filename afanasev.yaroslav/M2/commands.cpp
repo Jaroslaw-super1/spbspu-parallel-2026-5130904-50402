@@ -387,7 +387,7 @@ namespace afanasev
     }
 
     (void)pumpAll(data);
-    Calc &c = it->second;
+    const Calc &c = it->second;
     while (!c.done)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
