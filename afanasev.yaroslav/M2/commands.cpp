@@ -59,4 +59,15 @@ namespace afanasev
     out << "show " << name << "\n";
     return true;
   }
+
+  bool cmdShowSet(std::istream & in, std::ostream & out, Data &)
+  {
+    std::string name;
+    if (!(in >> name))
+    {
+      return false;
+    }
+    out << "showset " << name << "\n";
+    return true;
+  }
 }
