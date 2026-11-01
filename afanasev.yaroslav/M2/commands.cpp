@@ -133,4 +133,15 @@ namespace afanasev
     out << "status " << name << "\n";
     return true;
   }
+
+  bool cmdWait(std::istream & in, std::ostream & out, Data &)
+  {
+    std::string name;
+    if (!(in >> name))
+    {
+      return false;
+    }
+    out << "wait " << name << "\n";
+    return true;
+  }
 }
