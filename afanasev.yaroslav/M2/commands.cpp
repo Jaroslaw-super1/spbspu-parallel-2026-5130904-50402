@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iomanip>
 
 namespace afanasev
 {
@@ -20,6 +21,31 @@ namespace afanasev
     void printShape(std::ostream & out, const Shape & sh)
     {
       out << sh.radius() << " " << sh.center() << "\n";
+    }
+
+    void pumpAll(Data & data)
+    {
+      for (auto & thr : data.workers)
+      {
+        Worker & w = thr.second;
+        while (hasData(w.result_rd))
+        {
+          ResultSlot r{};
+          if (!recvAll(w.result_rd, &r, sizeof r))
+          {
+            break;
+          }
+          auto it = data.calc_name_by_id.find(r.calc_id);
+          if (it == data.calc_name_by_id.end())
+          {
+            continue;
+          }
+          Calc & c = data.calcs[it->second];
+          c.done = true;
+          c.ms = r.ms;
+          c.area = r.area;
+        }
+      }
     }
   }
 
@@ -261,14 +287,40 @@ namespace afanasev
     return true;
   }
 
-  bool cmdStatus(std::istream & in, std::ostream & out, Data &)
+  bool cmdStatus(std::istream & in, std::ostream & out, Data & data)
   {
     std::string name;
     if (!(in >> name))
     {
       return false;
     }
-    out << "status " << name << "\n";
+
+    auto it = data.calcs.find(name);
+    if (it == data.calcs.end())
+    {
+      return false;
+    }
+
+    pumpAll(data);
+
+    const Calc & c = it->second;
+
+    if (!c.done)
+    {
+      out << c.proc << " <IN PROGRESS>\n";
+      return true;
+    }
+
+    const auto saved_flags = out.flags();
+    const auto saved_prec = out.precision();
+
+    out << c.proc << " "
+        << std::fixed << std::setprecision(3)
+        << c.ms << " " << c.area << "\n";
+
+    out.flags(saved_flags);
+    out.precision(saved_prec);
+
     return true;
   }
 
