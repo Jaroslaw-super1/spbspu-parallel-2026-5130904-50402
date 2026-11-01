@@ -92,4 +92,17 @@ namespace afanasev
     out << "frameset " << name << "\n";
     return true;
   }
+
+  bool cmdSpawn(std::istream & in, std::ostream & out, Data &)
+  {
+    std::string name;
+    long long seed;
+
+    if (!(in >> name >> seed) || seed < 0)
+    {
+      return false;
+    }
+    out << "spawn " << name << " " << seed << "\n";
+    return true;
+  }
 }
