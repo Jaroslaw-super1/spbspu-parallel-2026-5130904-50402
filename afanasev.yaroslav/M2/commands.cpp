@@ -125,14 +125,52 @@ namespace afanasev
     return true;
   }
 
-  bool cmdFrameSet(std::istream & in, std::ostream & out, Data &)
+  bool cmdFrameSet(std::istream & in, std::ostream & out, Data & data)
   {
     std::string name;
     if (!(in >> name))
     {
       return false;
     }
-    out << "frameset " << name << "\n";
+
+    auto it = data.sets.find(name);
+    if (it == data.sets.end())
+    {
+      return false;
+    }
+
+    const std::vector< std::string > & names = it->second;
+    if (names.empty())
+    {
+      return false;
+    }
+
+    bbox_t result{};
+    bool first = true;
+    for (const auto & shapeName : names)
+    {
+      auto sit = data.shapes.find(shapeName);
+      if (sit == data.shapes.end())
+      {
+        return false;
+      }
+      const bbox_t b = sit->second.bbox();
+      if (first)
+      {
+        result = b;
+        first = false;
+      }
+      else
+      {
+        result.min_x = std::min(result.min_x, b.min_x);
+        result.min_y = std::min(result.min_y, b.min_y);
+        result.max_x = std::max(result.max_x, b.max_x);
+        result.max_y = std::max(result.max_y, b.max_y);
+      }
+    }
+
+    out << "(" << result.min_x << " " << result.min_y << ") ("
+        << result.max_x << " " << result.max_y << ")\n";
     return true;
   }
 
