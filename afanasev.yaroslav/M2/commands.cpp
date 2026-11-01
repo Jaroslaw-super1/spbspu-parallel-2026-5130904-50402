@@ -105,4 +105,21 @@ namespace afanasev
     out << "spawn " << name << " " << seed << "\n";
     return true;
   }
+
+  bool cmdAreaOn(std::istream & in, std::ostream & out, Data &)
+  {
+    std::string proc, calc, set;
+    long long threads, tries;
+    if (!(in >> proc >> calc >> set >> threads >> tries))
+    {
+      return false;
+    }
+    if (threads <= 0 || tries <= 0)
+    {
+      return false;
+    }
+    out << "area-on " << proc << " " << calc << " " << set
+        << " " << threads << " " << tries << "\n";
+    return true;
+  }
 }
