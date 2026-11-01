@@ -59,7 +59,14 @@ namespace afanasev
 
           const double bbox_area = (max_x - min_x) * (max_y - min_y);
 
-          const std::size_t nthreads = hdr.threads;
+          constexpr std::size_t MAX_THREADS = 12;
+
+          std::size_t nthreads = hdr.threads;
+          if (nthreads > MAX_THREADS)
+          {
+            nthreads = MAX_THREADS;
+          }
+
           std::vector< long long > counts(nthreads, 0);
           std::vector< std::thread > workers;
           workers.reserve(nthreads);

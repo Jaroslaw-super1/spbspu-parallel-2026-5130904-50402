@@ -23,6 +23,12 @@ namespace afanasev
       return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 
+    bool hasExtra(std::istream &in)
+    {
+      std::string extra;
+      return static_cast< bool >(in >> extra);
+    }
+
     void printShape(std::ostream &out, const Shape &sh)
     {
       out << sh.radius() << " " << sh.center() << "\n";
@@ -62,6 +68,10 @@ namespace afanasev
     {
       return false;
     }
+    if (hasExtra(in))
+    {
+      return false;
+    }
 
     data.shapes.emplace(name, Shape::makeCircle(r, x, y));
     return true;
@@ -89,6 +99,11 @@ namespace afanasev
       names.push_back(s);
     }
 
+    if (hasExtra(in))
+    {
+      return false;
+    }
+
     data.sets.emplace(name, std::move(names));
     return true;
   }
@@ -97,6 +112,10 @@ namespace afanasev
   {
     std::string name;
     if (!(in >> name))
+    {
+      return false;
+    }
+    if (hasExtra(in))
     {
       return false;
     }
@@ -115,6 +134,10 @@ namespace afanasev
   {
     std::string name;
     if (!(in >> name))
+    {
+      return false;
+    }
+    if (hasExtra(in))
     {
       return false;
     }
@@ -144,6 +167,10 @@ namespace afanasev
     {
       return false;
     }
+    if (hasExtra(in))
+    {
+      return false;
+    }
 
     auto it = data.shapes.find(name);
     if (it == data.shapes.end())
@@ -160,6 +187,10 @@ namespace afanasev
   {
     std::string name;
     if (!(in >> name))
+    {
+      return false;
+    }
+    if (hasExtra(in))
     {
       return false;
     }
@@ -212,6 +243,10 @@ namespace afanasev
     {
       return false;
     }
+    if (hasExtra(in))
+    {
+      return false;
+    }
 
     Worker w = spawnWorker(static_cast< unsigned >(seed));
     if (w.pid <= 0)
@@ -228,6 +263,10 @@ namespace afanasev
     std::string proc, calc, set;
     long long threads, tries;
     if (!(in >> proc >> calc >> set >> threads >> tries) || threads <= 0 || tries <= 0 || !isValidName(calc))
+    {
+      return false;
+    }
+    if (hasExtra(in))
     {
       return false;
     }
@@ -299,7 +338,7 @@ namespace afanasev
   bool cmdStatus(std::istream &in, std::ostream &out, Data &data)
   {
     std::string name;
-    if (!(in >> name))
+    if (!(in >> name) || (hasExtra(in)))
     {
       return false;
     }
@@ -334,7 +373,7 @@ namespace afanasev
   bool cmdWait(std::istream &in, std::ostream &out, Data &data)
   {
     std::string name;
-    if (!(in >> name))
+    if (!(in >> name) || (hasExtra(in)))
     {
       return false;
     }

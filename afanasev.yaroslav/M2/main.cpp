@@ -1,8 +1,8 @@
 #include <csignal>
 #include <iostream>
-#include <limits>
 #include <string>
 #include <unordered_map>
+#include <sstream>
 #include "commands.hpp"
 
 namespace
@@ -36,27 +36,31 @@ int main()
   }
 
   afanasev::Data data;
-  std::string cmd;
+  std::string line;
 
-  while (std::cin >> cmd)
+  while (std::getline(std::cin, line))
   {
+    std::istringstream in(line);
+    std::string cmd;
+
+    if (!(in >> cmd))
+    {
+      continue; // пустая строка
+    }
+
     const auto &table = commandTable();
     auto it = table.find(cmd);
 
     if (it == table.end())
     {
       std::cout << "<UNKNOWN COMMAND>\n";
-      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
       continue;
     }
 
-    if (!it->second(std::cin, std::cout, data))
+    if (!it->second(in, std::cout, data))
     {
       std::cout << "<INVALID COMMAND>\n";
-      std::cin.clear();
     }
-
-    std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
 
   for (auto &thr : data.workers)
