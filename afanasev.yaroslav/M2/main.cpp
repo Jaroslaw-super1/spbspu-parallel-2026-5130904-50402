@@ -9,19 +9,19 @@ namespace
 {
   using Handler = bool (*)(std::istream &, std::ostream &, afanasev::Data &);
 
-  const std::unordered_map< std::string, Handler > & commandTable()
+  const std::unordered_map< std::string, Handler > &commandTable()
   {
     static const std::unordered_map< std::string, Handler > t = {
-      {"circle",   afanasev::cmdCircle},
-      {"set",      afanasev::cmdSet},
-      {"show",     afanasev::cmdShow},
-      {"showset",  afanasev::cmdShowSet},
-      {"frame",    afanasev::cmdFrame},
-      {"frameset", afanasev::cmdFrameSet},
-      {"spawn",    afanasev::cmdSpawn},
-      {"area-on",  afanasev::cmdAreaOn},
-      {"status",   afanasev::cmdStatus},
-      {"wait",     afanasev::cmdWait},
+        {"circle", afanasev::cmdCircle},
+        {"set", afanasev::cmdSet},
+        {"show", afanasev::cmdShow},
+        {"showset", afanasev::cmdShowSet},
+        {"frame", afanasev::cmdFrame},
+        {"frameset", afanasev::cmdFrameSet},
+        {"spawn", afanasev::cmdSpawn},
+        {"area-on", afanasev::cmdAreaOn},
+        {"status", afanasev::cmdStatus},
+        {"wait", afanasev::cmdWait},
     };
     return t;
   }
@@ -40,7 +40,7 @@ int main()
 
   while (std::cin >> cmd)
   {
-    const auto & table = commandTable();
+    const auto &table = commandTable();
     auto it = table.find(cmd);
 
     if (it == table.end())
@@ -59,7 +59,7 @@ int main()
     std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
 
-  for (auto & thr : data.workers)
+  for (auto &thr : data.workers)
   {
     afanasev::stopWorker(thr.second);
   }

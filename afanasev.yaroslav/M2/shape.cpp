@@ -13,6 +13,6 @@ namespace afanasev
 
   bbox_t Shape::bbox() const noexcept
   {
-    return { x_ - r_, y_ - r_, x_ + r_, y_ + r_ };
+    return {x_ - r_, y_ - r_, x_ + r_, y_ + r_};
   }
 }

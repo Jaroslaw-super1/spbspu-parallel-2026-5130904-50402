@@ -13,23 +13,26 @@ namespace afanasev
 {
   namespace
   {
-    bool isValidName(const std::string & s)
+    bool isValidName(const std::string &s)
     {
-      if (s.empty()) return false;
+      if (s.empty())
+      {
+        return false;
+      }
       const char c = s.front();
       return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 
-    void printShape(std::ostream & out, const Shape & sh)
+    void printShape(std::ostream &out, const Shape &sh)
     {
       out << sh.radius() << " " << sh.center() << "\n";
     }
 
-    void pumpAll(Data & data)
+    void pumpAll(Data &data)
     {
-      for (auto & thr : data.workers)
+      for (auto &thr : data.workers)
       {
-        Worker & w = thr.second;
+        Worker &w = thr.second;
         while (hasData(w.result_rd))
         {
           ResultSlot r{};
@@ -42,7 +45,7 @@ namespace afanasev
           {
             continue;
           }
-          Calc & c = data.calcs[it->second];
+          Calc &c = data.calcs[it->second];
           c.done = true;
           c.ms = r.ms;
           c.area = r.area;
@@ -51,7 +54,7 @@ namespace afanasev
     }
   }
 
-  bool cmdCircle(std::istream & in, std::ostream &, Data & data)
+  bool cmdCircle(std::istream &in, std::ostream &, Data &data)
   {
     std::string name;
     long long r, x, y;
@@ -64,7 +67,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdSet(std::istream & in, std::ostream &, Data & data)
+  bool cmdSet(std::istream &in, std::ostream &, Data &data)
   {
     std::string name;
     long long n;
@@ -90,7 +93,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdShow(std::istream & in, std::ostream & out, Data & data)
+  bool cmdShow(std::istream &in, std::ostream &out, Data &data)
   {
     std::string name;
     if (!(in >> name))
@@ -108,7 +111,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdShowSet(std::istream & in, std::ostream & out, Data & data)
+  bool cmdShowSet(std::istream &in, std::ostream &out, Data &data)
   {
     std::string name;
     if (!(in >> name))
@@ -122,7 +125,7 @@ namespace afanasev
       return false;
     }
 
-    for (const auto & shapeName : it->second)
+    for (const auto &shapeName : it->second)
     {
       auto sit = data.shapes.find(shapeName);
       if (sit == data.shapes.end())
@@ -134,7 +137,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdFrame(std::istream & in, std::ostream & out, Data & data)
+  bool cmdFrame(std::istream &in, std::ostream &out, Data &data)
   {
     std::string name;
     if (!(in >> name))
@@ -153,7 +156,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdFrameSet(std::istream & in, std::ostream & out, Data & data)
+  bool cmdFrameSet(std::istream &in, std::ostream &out, Data &data)
   {
     std::string name;
     if (!(in >> name))
@@ -167,7 +170,7 @@ namespace afanasev
       return false;
     }
 
-    const std::vector< std::string > & names = it->second;
+    const std::vector< std::string > &names = it->second;
     if (names.empty())
     {
       return false;
@@ -175,7 +178,7 @@ namespace afanasev
 
     bbox_t result{};
     bool first = true;
-    for (const auto & shapeName : names)
+    for (const auto &shapeName : names)
     {
       auto sit = data.shapes.find(shapeName);
       if (sit == data.shapes.end())
@@ -201,7 +204,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdSpawn(std::istream & in, std::ostream &, Data & data)
+  bool cmdSpawn(std::istream &in, std::ostream &, Data &data)
   {
     std::string name;
     long long seed;
@@ -220,7 +223,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdAreaOn(std::istream & in, std::ostream &, Data & data)
+  bool cmdAreaOn(std::istream &in, std::ostream &, Data &data)
   {
     std::string proc, calc, set;
     long long threads, tries;
@@ -246,14 +249,14 @@ namespace afanasev
 
     std::vector< ShapeWire > wires;
     wires.reserve(sit->second.size());
-    for (const auto & shapeName : sit->second)
+    for (const auto &shapeName : sit->second)
     {
       auto shIt = data.shapes.find(shapeName);
       if (shIt == data.shapes.end())
       {
         return false;
       }
-      const Shape & sh = shIt->second;
+      const Shape &sh = shIt->second;
       ShapeWire sw{};
       sw.radius = static_cast< double >(sh.radius());
       point_t c = sh.center();
@@ -270,7 +273,7 @@ namespace afanasev
     hdr.tries = static_cast< std::size_t >(tries);
     hdr.num_shapes = wires.size();
 
-    Worker & w = wit->second;
+    Worker &w = wit->second;
 
     if (!sendAll(w.req_wr, &hdr, sizeof hdr))
     {
@@ -293,7 +296,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdStatus(std::istream & in, std::ostream & out, Data & data)
+  bool cmdStatus(std::istream &in, std::ostream &out, Data &data)
   {
     std::string name;
     if (!(in >> name))
@@ -309,7 +312,7 @@ namespace afanasev
 
     pumpAll(data);
 
-    const Calc & c = it->second;
+    const Calc &c = it->second;
 
     if (!c.done)
     {
@@ -320,9 +323,7 @@ namespace afanasev
     const auto saved_flags = out.flags();
     const auto saved_prec = out.precision();
 
-    out << c.proc << " "
-        << std::fixed << std::setprecision(3)
-        << c.ms << " " << c.area << "\n";
+    out << c.proc << " " << std::fixed << std::setprecision(3) << c.ms << " " << c.area << "\n";
 
     out.flags(saved_flags);
     out.precision(saved_prec);
@@ -330,7 +331,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdWait(std::istream & in, std::ostream & out, Data & data)
+  bool cmdWait(std::istream &in, std::ostream &out, Data &data)
   {
     std::string name;
     if (!(in >> name))
@@ -345,7 +346,7 @@ namespace afanasev
     }
 
     pumpAll(data);
-    Calc & c = it->second;
+    Calc &c = it->second;
     while (!c.done)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -361,9 +362,7 @@ namespace afanasev
     const auto saved_flags = out.flags();
     const auto saved_prec = out.precision();
 
-    out << c.proc << " "
-        << std::fixed << std::setprecision(3)
-        << c.ms << " " << c.area << "\n";
+    out << c.proc << " " << std::fixed << std::setprecision(3) << c.ms << " " << c.area << "\n";
 
     out.flags(saved_flags);
     out.precision(saved_prec);

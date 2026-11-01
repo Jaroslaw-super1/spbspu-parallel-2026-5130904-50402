@@ -186,8 +186,8 @@ namespace afanasev
   {
     Worker w;
 
-    int req_pipe[2] = { -1, -1 };
-    int result_pipe[2] = { -1, -1 };
+    int req_pipe[2] = {-1, -1};
+    int result_pipe[2] = {-1, -1};
 
     if (pipe(req_pipe) < 0)
     {
