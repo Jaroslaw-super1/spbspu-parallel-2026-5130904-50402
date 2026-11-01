@@ -169,8 +169,7 @@ namespace afanasev
       }
     }
 
-    out << "(" << result.min_x << " " << result.min_y << ") ("
-        << result.max_x << " " << result.max_y << ")\n";
+    out << "(" << result.min_x << " " << result.min_y << ") (" << result.max_x << " " << result.max_y << ")\n";
     return true;
   }
 

@@ -4,8 +4,9 @@
 #include <iosfwd>
 #include <map>
 #include <string>
-#include "shape.hpp"
 #include <vector>
+#include "shape.hpp"
+#include "worker.hpp"
 
 namespace afanasev
 {
@@ -13,6 +14,7 @@ namespace afanasev
   {
     std::map< std::string, Shape > shapes;
     std::map< std::string, std::vector< std::string > > sets;
+    std::map< std::string, Worker > workers;
   };
 
   bool cmdCircle(std::istream &, std::ostream &, Data &);
