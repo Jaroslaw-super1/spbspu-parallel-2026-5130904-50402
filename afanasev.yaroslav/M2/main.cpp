@@ -1,3 +1,4 @@
+#include <csignal>
 #include <iostream>
 #include <limits>
 #include <string>
@@ -8,9 +9,9 @@ namespace
 {
   using Handler = bool (*)(std::istream &, std::ostream &, afanasev::Data &);
 
-  const std::unordered_map<std::string, Handler> & commandTable()
+  const std::unordered_map< std::string, Handler > & commandTable()
   {
-    static const std::unordered_map<std::string, Handler> t = {
+    static const std::unordered_map< std::string, Handler > t = {
       {"circle",   afanasev::cmdCircle},
       {"set",      afanasev::cmdSet},
       {"show",     afanasev::cmdShow},
@@ -28,6 +29,12 @@ namespace
 
 int main()
 {
+  if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+  {
+    std::cerr << "failed to ignore SIGPIPE\n";
+    return 1;
+  }
+
   afanasev::Data data;
   std::string cmd;
 
@@ -39,7 +46,7 @@ int main()
     if (it == table.end())
     {
       std::cout << "<UNKNOWN COMMAND>\n";
-      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
       continue;
     }
 
@@ -49,7 +56,13 @@ int main()
       std::cin.clear();
     }
 
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
+
+  for (auto & thr : data.workers)
+  {
+    afanasev::stopWorker(thr.second);
+  }
+
   return 0;
 }
