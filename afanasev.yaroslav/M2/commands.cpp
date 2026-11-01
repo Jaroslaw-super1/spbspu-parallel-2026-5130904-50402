@@ -192,20 +192,67 @@ namespace afanasev
     return true;
   }
 
-  bool cmdAreaOn(std::istream & in, std::ostream & out, Data &)
+  bool cmdAreaOn(std::istream & in, std::ostream &, Data & data)
   {
     std::string proc, calc, set;
     long long threads, tries;
-    if (!(in >> proc >> calc >> set >> threads >> tries))
+    if (!(in >> proc >> calc >> set >> threads >> tries) || threads <= 0 || tries <= 0 || !isValidName(calc))
     {
       return false;
     }
-    if (threads <= 0 || tries <= 0)
+
+    auto wit = data.workers.find(proc);
+    if (wit == data.workers.end() || (data.calcs.count(calc) > 0))
     {
       return false;
     }
-    out << "area-on " << proc << " " << calc << " " << set
-        << " " << threads << " " << tries << "\n";
+    auto sit = data.sets.find(set);
+    if (sit == data.sets.end())
+    {
+      return false;
+    }
+
+    std::vector< ShapeWire > wires;
+    wires.reserve(sit->second.size());
+    for (const auto & shapeName : sit->second)
+    {
+      auto shIt = data.shapes.find(shapeName);
+      if (shIt == data.shapes.end())
+      {
+        return false;
+      }
+      const Shape & sh = shIt->second;
+      ShapeWire sw{};
+      sw.radius = static_cast< double >(sh.radius());
+      point_t c = sh.center();
+      sw.cx = static_cast< double >(c.x);
+      sw.cy = static_cast< double >(c.y);
+      wires.push_back(sw);
+    }
+
+    const std::size_t calc_id = data.next_calc_id++;
+
+    RequestHeader hdr{};
+    hdr.calc_id = calc_id;
+    hdr.threads = static_cast< std::size_t >(threads);
+    hdr.tries = static_cast< std::size_t >(tries);
+    hdr.num_shapes = wires.size();
+
+    Worker & w = wit->second;
+
+    bool a = !wires.empty() && !sendAll(w.req_wr, wires.data(), wires.size() * sizeof(ShapeWire));
+    if (!sendAll(w.req_wr, &hdr, sizeof hdr) || a)
+    {
+      return false;
+    }
+
+    Calc c{};
+    c.proc = proc;
+    c.calc_id = calc_id;
+    c.done = false;
+    data.calcs.emplace(calc, c);
+    data.calc_name_by_id.emplace(calc_id, calc);
+
     return true;
   }
 
