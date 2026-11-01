@@ -173,7 +173,7 @@ namespace afanasev
     return true;
   }
 
-  bool cmdSpawn(std::istream & in, std::ostream & out, Data & data)
+  bool cmdSpawn(std::istream & in, std::ostream &, Data & data)
   {
     std::string name;
     long long seed;
@@ -187,27 +187,6 @@ namespace afanasev
     {
       return false;
     }
-
-    RequestHeader hdr{};
-    hdr.calc_id = 0;
-    hdr.threads = 1;
-    hdr.tries = 1;
-    hdr.num_shapes = 0;
-
-    if (!sendAll(w.req_wr, &hdr, sizeof hdr))
-    {
-      stopWorker(w);
-      return false;
-    }
-
-    ResultSlot r{};
-    if (!recvAll(w.result_rd, &r, sizeof r))
-    {
-      stopWorker(w);
-      return false;
-    }
-
-    out << "spawn test: 1 + 1 = " << r.area << "\n";
 
     data.workers.emplace(name, w);
     return true;
