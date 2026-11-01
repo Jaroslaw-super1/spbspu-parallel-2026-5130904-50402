@@ -35,11 +35,12 @@ namespace afanasev
     return true;
   }
 
-  bool cmdSet(std::istream & in, std::ostream & out, Data &)
+  bool cmdSet(std::istream & in, std::ostream &, Data & data)
   {
     std::string name;
     long long n;
-    if (!(in >> name >> n) || n < 0)
+
+    if (!(in >> name >> n) || (n < 0) || (!isValidName(name)) || (data.sets.count(name) > 0))
     {
       return false;
     }
@@ -49,19 +50,14 @@ namespace afanasev
     for (long long i = 0; i < n; ++i)
     {
       std::string s;
-      if (!(in >> s))
+      if (!(in >> s) || (data.shapes.count(s) == 0))
       {
         return false;
       }
       names.push_back(s);
     }
 
-    out << "set " << name << " " << n;
-    for (const auto & s : names)
-    {
-      out << " " << s;
-    }
-    out << "\n";
+    data.sets.emplace(name, std::move(names));
     return true;
   }
 

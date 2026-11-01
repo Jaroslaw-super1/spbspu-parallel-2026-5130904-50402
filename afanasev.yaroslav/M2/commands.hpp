@@ -5,12 +5,14 @@
 #include <map>
 #include <string>
 #include "shape.hpp"
+#include <vector>
 
 namespace afanasev
 {
   struct Data
   {
     std::map< std::string, Shape > shapes;
+    std::map< std::string, std::vector< std::string > > sets;
   };
 
   bool cmdCircle(std::istream &, std::ostream &, Data &);
