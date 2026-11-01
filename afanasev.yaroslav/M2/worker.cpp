@@ -1,5 +1,12 @@
 #include "worker.hpp"
 
+#include <algorithm>
+#include <chrono>
+#include <limits>
+#include <numeric>
+#include <random>
+#include <thread>
+#include <vector>
 #include <cerrno>
 #include <csignal>
 #include <cstddef>
@@ -13,8 +20,6 @@ namespace afanasev
   {
     [[noreturn]] void runChild(unsigned seed, int req_rd, int result_wr)
     {
-      (void)seed;
-
       signal(SIGPIPE, SIG_IGN);
 
       for (;;)
@@ -25,19 +30,93 @@ namespace afanasev
           _exit(0);
         }
 
-        for (std::size_t i = 0; i < hdr.num_shapes; ++i)
+        std::vector< ShapeWire > shapes(hdr.num_shapes);
+        if (!shapes.empty())
         {
-          ShapeWire sw{};
-          if (!recvAll(req_rd, &sw, sizeof sw))
+          if (!recvAll(req_rd, shapes.data(), shapes.size() * sizeof(ShapeWire)))
           {
             _exit(0);
           }
         }
 
+        const auto start = std::chrono::steady_clock::now();
+
+        double area = 0.0;
+
+        if (!shapes.empty())
+        {
+          double min_x = std::numeric_limits< double >::infinity();
+          double max_x = -std::numeric_limits< double >::infinity();
+          double min_y = std::numeric_limits< double >::infinity();
+          double max_y = -std::numeric_limits< double >::infinity();
+          for (const auto & s : shapes)
+          {
+            min_x = std::min(min_x, s.cx - s.radius);
+            max_x = std::max(max_x, s.cx + s.radius);
+            min_y = std::min(min_y, s.cy - s.radius);
+            max_y = std::max(max_y, s.cy + s.radius);
+          }
+
+          const double bbox_area = (max_x - min_x) * (max_y - min_y);
+
+          const std::size_t nthreads = hdr.threads;
+          std::vector< long long > counts(nthreads, 0);
+          std::vector< std::thread > workers;
+          workers.reserve(nthreads);
+
+          const long long total_tries = static_cast< long long >(hdr.tries);
+          const long long base = total_tries / static_cast< long long >(nthreads);
+          const long long rem = total_tries % static_cast< long long >(nthreads);
+          const unsigned base_seed = seed + static_cast< unsigned >(hdr.calc_id);
+
+          for (std::size_t t = 0; t < nthreads; ++t)
+          {
+            const long long cnt = base + (static_cast< long long >(t) < rem ? 1LL : 0LL);
+            const unsigned thread_seed = base_seed + static_cast< unsigned >(t);
+
+            workers.emplace_back(
+                [&, t, cnt, thread_seed]()
+                {
+                  std::default_random_engine gen(thread_seed);
+                  std::uniform_real_distribution< double > dist_x(min_x, max_x);
+                  std::uniform_real_distribution< double > dist_y(min_y, max_y);
+
+                  long long in_union = 0;
+                  for (long long i = 0; i < cnt; ++i)
+                  {
+                    const double px = dist_x(gen);
+                    const double py = dist_y(gen);
+                    for (const auto & s : shapes)
+                    {
+                      const double dx = px - s.cx;
+                      const double dy = py - s.cy;
+                      if (dx * dx + dy * dy <= s.radius * s.radius)
+                      {
+                        ++in_union;
+                        break;
+                      }
+                    }
+                  }
+                  counts[t] = in_union;
+                });
+          }
+
+          for (std::thread & w : workers)
+          {
+            w.join();
+          }
+
+          const long long total_in = std::accumulate(counts.begin(), counts.end(), 0LL);
+          area = bbox_area * static_cast< double >(total_in) / static_cast< double >(hdr.tries);
+        }
+
+        const auto end = std::chrono::steady_clock::now();
+        const double ms = std::chrono::duration< double, std::milli >(end - start).count();
+
         ResultSlot r{};
         r.calc_id = hdr.calc_id;
-        r.ms = 0.0;
-        r.area = 2.0;
+        r.ms = ms;
+        r.area = area;
 
         if (!sendAll(result_wr, &r, sizeof r))
         {

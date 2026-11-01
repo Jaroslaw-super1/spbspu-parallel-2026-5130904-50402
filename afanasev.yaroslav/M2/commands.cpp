@@ -6,6 +6,8 @@
 #include <vector>
 #include <algorithm>
 #include <iomanip>
+#include <chrono>
+#include <thread>
 
 namespace afanasev
 {
@@ -226,6 +228,10 @@ namespace afanasev
     {
       return false;
     }
+    if (threads > tries)
+    {
+      threads = tries;
+    }
 
     auto wit = data.workers.find(proc);
     if (wit == data.workers.end() || (data.calcs.count(calc) > 0))
@@ -324,14 +330,44 @@ namespace afanasev
     return true;
   }
 
-  bool cmdWait(std::istream & in, std::ostream & out, Data &)
+  bool cmdWait(std::istream & in, std::ostream & out, Data & data)
   {
     std::string name;
     if (!(in >> name))
     {
       return false;
     }
-    out << "wait " << name << "\n";
+
+    auto it = data.calcs.find(name);
+    if (it == data.calcs.end())
+    {
+      return false;
+    }
+
+    pumpAll(data);
+    Calc & c = it->second;
+    while (!c.done)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      pumpAll(data);
+    }
+
+    if (!c.done)
+    {
+      out << c.proc << " <IN PROGRESS>\n";
+      return true;
+    }
+
+    const auto saved_flags = out.flags();
+    const auto saved_prec = out.precision();
+
+    out << c.proc << " "
+        << std::fixed << std::setprecision(3)
+        << c.ms << " " << c.area << "\n";
+
+    out.flags(saved_flags);
+    out.precision(saved_prec);
+
     return true;
   }
 }
