@@ -45,7 +45,7 @@ int main()
 
     if (!(in >> cmd))
     {
-      continue; // пустая строка
+      continue;
     }
 
     const auto &table = commandTable();

@@ -38,7 +38,7 @@ namespace afanasev
     {
       for (auto &thr : data.workers)
       {
-        Worker &w = thr.second;
+        const Worker &w = thr.second;
         while (hasData(w.result_rd))
         {
           ResultSlot r{};
@@ -63,7 +63,7 @@ namespace afanasev
   bool cmdCircle(std::istream &in, std::ostream &, Data &data)
   {
     std::string name;
-    long long r, x, y;
+    long long r = 0, x = 0, y = 0;
     if (!(in >> name >> r >> x >> y) || r <= 0 || !isValidName(name) || data.shapes.count(name) > 0)
     {
       return false;
@@ -80,7 +80,7 @@ namespace afanasev
   bool cmdSet(std::istream &in, std::ostream &, Data &data)
   {
     std::string name;
-    long long n;
+    long long n = 0;
 
     if (!(in >> name >> n) || (n < 0) || (!isValidName(name)) || (data.sets.count(name) > 0))
     {
@@ -148,9 +148,9 @@ namespace afanasev
       return false;
     }
 
-    for (const auto &shapeName : it->second)
+    for (const auto &shape_name : it->second)
     {
-      auto sit = data.shapes.find(shapeName);
+      auto sit = data.shapes.find(shape_name);
       if (sit == data.shapes.end())
       {
         return false;
@@ -209,9 +209,9 @@ namespace afanasev
 
     bbox_t result{};
     bool first = true;
-    for (const auto &shapeName : names)
+    for (const auto &shape_name : names)
     {
-      auto sit = data.shapes.find(shapeName);
+      auto sit = data.shapes.find(shape_name);
       if (sit == data.shapes.end())
       {
         return false;
@@ -238,7 +238,7 @@ namespace afanasev
   bool cmdSpawn(std::istream &in, std::ostream &, Data &data)
   {
     std::string name;
-    long long seed;
+    long long seed = 0;
     if (!(in >> name >> seed) || (seed < 0) || (!isValidName(name)) || (data.workers.count(name) > 0))
     {
       return false;
@@ -261,7 +261,7 @@ namespace afanasev
   bool cmdAreaOn(std::istream &in, std::ostream &, Data &data)
   {
     std::string proc, calc, set;
-    long long threads, tries;
+    long long threads = 0, tries = 0;
     if (!(in >> proc >> calc >> set >> threads >> tries) || threads <= 0 || tries <= 0 || !isValidName(calc))
     {
       return false;
@@ -288,17 +288,17 @@ namespace afanasev
 
     std::vector< ShapeWire > wires;
     wires.reserve(sit->second.size());
-    for (const auto &shapeName : sit->second)
+    for (const auto &shape_name : sit->second)
     {
-      auto shIt = data.shapes.find(shapeName);
-      if (shIt == data.shapes.end())
+      auto sh_it = data.shapes.find(shape_name);
+      if (sh_it == data.shapes.end())
       {
         return false;
       }
-      const Shape &sh = shIt->second;
+      const Shape &sh = sh_it->second;
       ShapeWire sw{};
       sw.radius = static_cast< double >(sh.radius());
-      point_t c = sh.center();
+      const point_t c = sh.center();
       sw.cx = static_cast< double >(c.x);
       sw.cy = static_cast< double >(c.y);
       wires.push_back(sw);
@@ -385,7 +385,7 @@ namespace afanasev
     }
 
     pumpAll(data);
-    Calc &c = it->second;
+    const Calc &c = it->second;
     while (!c.done)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));

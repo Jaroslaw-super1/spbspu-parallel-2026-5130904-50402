@@ -49,7 +49,7 @@ namespace afanasev
           double max_x = -std::numeric_limits< double >::infinity();
           double min_y = std::numeric_limits< double >::infinity();
           double max_y = -std::numeric_limits< double >::infinity();
-          for (const auto & s : shapes)
+          for (const auto &s : shapes)
           {
             min_x = std::min(min_x, s.cx - s.radius);
             max_x = std::max(max_x, s.cx + s.radius);
@@ -93,7 +93,7 @@ namespace afanasev
                   {
                     const double px = dist_x(gen);
                     const double py = dist_y(gen);
-                    for (const auto & s : shapes)
+                    for (const auto &s : shapes)
                     {
                       const double dx = px - s.cx;
                       const double dy = py - s.cy;
@@ -108,7 +108,7 @@ namespace afanasev
                 });
           }
 
-          for (std::thread & w : workers)
+          for (std::thread &w : workers)
           {
             w.join();
           }
@@ -133,9 +133,9 @@ namespace afanasev
     }
   }
 
-  bool sendAll(int fd, const void * buf, std::size_t n)
+  bool sendAll(int fd, const void *buf, std::size_t n)
   {
-    const char * p = static_cast< const char * >(buf);
+    const char *const p = static_cast< const char * >(buf);
     std::size_t put = 0;
     while (put < n)
     {
@@ -157,9 +157,9 @@ namespace afanasev
     return true;
   }
 
-  bool recvAll(int fd, void * buf, std::size_t n)
+  bool recvAll(int fd, void *buf, std::size_t n)
   {
-    char * p = static_cast< char * >(buf);
+    char *const p = static_cast< char * >(buf);
     std::size_t got = 0;
     while (got < n)
     {
@@ -233,7 +233,7 @@ namespace afanasev
     return w;
   }
 
-  void stopWorker(Worker & w)
+  void stopWorker(Worker &w)
   {
     if (w.req_wr >= 0)
     {
