@@ -240,9 +240,14 @@ namespace afanasev
 
     Worker & w = wit->second;
 
-    bool a = !wires.empty() && !sendAll(w.req_wr, wires.data(), wires.size() * sizeof(ShapeWire));
-    if (!sendAll(w.req_wr, &hdr, sizeof hdr) || a)
+    if (!sendAll(w.req_wr, &hdr, sizeof hdr))
     {
+      stopWorker(w);
+      return false;
+    }
+    if (!wires.empty() && !sendAll(w.req_wr, wires.data(), wires.size() * sizeof(ShapeWire)))
+    {
+      stopWorker(w);
       return false;
     }
 
