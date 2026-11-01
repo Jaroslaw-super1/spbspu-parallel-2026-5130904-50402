@@ -173,16 +173,43 @@ namespace afanasev
     return true;
   }
 
-  bool cmdSpawn(std::istream & in, std::ostream & out, Data &)
+  bool cmdSpawn(std::istream & in, std::ostream & out, Data & data)
   {
     std::string name;
     long long seed;
-
-    if (!(in >> name >> seed) || seed < 0)
+    if (!(in >> name >> seed) || (seed < 0) || (!isValidName(name)) || (data.workers.count(name) > 0))
     {
       return false;
     }
-    out << "spawn " << name << " " << seed << "\n";
+
+    Worker w = spawnWorker(static_cast< unsigned >(seed));
+    if (w.pid <= 0)
+    {
+      return false;
+    }
+
+    RequestHeader hdr{};
+    hdr.calc_id = 0;
+    hdr.threads = 1;
+    hdr.tries = 1;
+    hdr.num_shapes = 0;
+
+    if (!sendAll(w.req_wr, &hdr, sizeof hdr))
+    {
+      stopWorker(w);
+      return false;
+    }
+
+    ResultSlot r{};
+    if (!recvAll(w.result_rd, &r, sizeof r))
+    {
+      stopWorker(w);
+      return false;
+    }
+
+    out << "spawn test: 1 + 1 = " << r.area << "\n";
+
+    data.workers.emplace(name, w);
     return true;
   }
 
